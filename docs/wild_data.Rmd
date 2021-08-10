@@ -1,0 +1,79 @@
+---
+title: "wild_data"
+author: "Jake Eisaguirre"
+date: "8/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+#read in data
+```{r}
+
+mack_verts <- read_csv(here::here("data", "AS00601.csv"))
+
+```
+
+#wrangle data
+```{r}
+
+mack_verts <- janitor::clean_names(mack_verts)
+
+mc_wt_5 <- mack_verts$weight[5]
+mc_wt_5
+
+mc_length_8_20 <- mack_verts$length1[8:20]
+mc_length_8_20
+
+mc_dates <- as.vector(mack_verts$sampledate)
+mc_dates
+
+```
+
+#make salamander subset
+```{r}
+
+mc_salamander <- mack_verts %>%
+  filter(species == "DITE")
+
+mc_salamander <- janitor::clean_names(mc_salamander)
+                
+```
+
+#make scatter plot for salamanders
+```{r}
+
+DITE <- ggplot(data = mc_salamander, aes(x = length1, y = weight)) +
+  geom_point() + 
+  labs(x = "snout-vent length (mm)", 
+       y = "weight (g)", 
+       title = "All Salamanders",
+       subtitle = "I like salamanders",
+       caption = "data source: https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14")
+
+ggsave(here::here("figs", "DITE.png"))
+```
+
+#sub set trout data
+```{r}
+mc_trout <- mack_verts %>% 
+  filter(species == "ONCL")
+
+mc_trout
+
+ggplot(data = mc_trout, aes(x = length1, y = weight)) +
+  geom_point(aes(color = reach)) +
+  scale_color_manual(values = c("red", "blue", "pink")) +
+  facet_wrap(~reach) +
+  labs(x = "weight (g)", y = "length (mm)")
+
+ggsave(here::here("figs", "cutthroat_siz.png"))
+
+
+```
+
